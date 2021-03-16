@@ -15,8 +15,8 @@ class Server:
         self.clients = []
 
         self.s.bind((host, port))
-        self.s.listen(100)
-
+        self.s.listen()
+        print('listening at...')
         print('IP: ' + str(host))
         print('Port: ' + str(port))
 
@@ -24,7 +24,7 @@ class Server:
 
         while True:
             c, addr = self.s.accept()
-
+            c.send("NAME".encode("utf-8"))
             username = c.recv(1024).decode("utf-8")
 
             print('New connection. Username: ' + str(username))
@@ -35,6 +35,10 @@ class Server:
             self.clients.append(c)
 
             threading.Thread(target=self.handle_client, args=(c, addr,)).start()
+
+            self.message_all(f"active users : {threading.activeCount()-1}")
+            for user in self.username_lookup:
+                self.message_all(f"{}")
 
     def message_all(self, msg):
         for connection in self.clients:
