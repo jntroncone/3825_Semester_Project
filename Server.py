@@ -12,15 +12,14 @@ class Server:
         host = "10.0.0.168"
         port = 3825
 
+        self.usernames = []
         self.clients = []
-
         self.s.bind((host, port))
         self.s.listen()
         print('listening at...')
         print('IP: ' + str(host))
         print('Port: ' + str(port))
 
-        self.username_lookup = {}
 
         while True:
             c, addr = self.s.accept()
@@ -28,40 +27,42 @@ class Server:
             username = c.recv(1024).decode("utf-8")
 
             print('New connection. Username: ' + str(username))
-            self.message_all('New person joined, username: ' + username)
+            self.message_all(f"{username} has joined, welcome!")
 
-            self.username_lookup[c] = username
+            self.usernames.append(username)
 
             self.clients.append(c)
 
             threading.Thread(target=self.handle_client, args=(c, addr,)).start()
 
-            self.message_all(f"active users : {threading.activeCount()-1}")
-            for user in self.username_lookup:
-                self.message_all(f"{}")
+            self.message_all(f"Currently {threading.activeCount()-1} active users:\n")
 
-    def message_all(self, msg):
+            for user in self.usernames:
+                self.message_all(f"{user} \n")
+
+    def message_all(self, message):
         for connection in self.clients:
-            connection.send(msg.encode("utf-8"))
+            connection.send(message.encode("utf-8"))
 
     def handle_client(self, c, addr):
         while True:
             try:
-                msg = c.recv(1024)
+                message = c.recv(1024)
             except:
                 c.shutdown(socket.SHUT_RDWR)
+
+                print(str(self.usernames[c]) + ' left...')
+                self.message_all(str(self.usernames[c]) + ' left...')
+
                 self.clients.remove(c)
-
-                print(str(self.username_lookup[c]) + ' left...')
-                self.message_all(str(self.username_lookup[c]) + ' left...')
-
+                self.usernames.remove(c)
                 break
 
-            if msg.decode("utf-8") != '':
-                print('New message: ' + str(msg.decode("utf-8")))
+            if message.decode("utf-8") != '':
+                print(str(message.decode("utf-8")))
                 for connection in self.clients:
-                    if connection != c:
-                        connection.send(msg)
+                    # if connection != c:
+                    connection.send(message)
 
 
 server = Server()

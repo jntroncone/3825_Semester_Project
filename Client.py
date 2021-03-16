@@ -1,8 +1,6 @@
 import socket
 import threading
 from tkinter import *
-from tkinter import font
-from tkinter import ttk
 
 
 class Client:
@@ -35,39 +33,39 @@ class Client:
         self.login.configure(width=400,
                              height=300)
         # label for username screen
-        self.usern = Label(self.login,
-                         text="Please enter a username",
-                         justify=CENTER,
-                         font="Helvetica 14 bold")
-        self.usern.place(relheight = 0.15,
-                         relx = 0.2,
-                         rely = 0.7)
+        self.user = Label(self.login,
+                          text="Please enter a username",
+                          justify=CENTER,
+                          font="Helvetica 14 bold")
+        self.user.place(relheight=0.15,
+                        relx=0.2,
+                        rely=0.7)
         # another label
         self.labelName = Label(self.login,
-                               text = "username: ",
-                               font = "Helvetica 14")
-        self.labelName.place(relheight = 0.2,
-                                relx = 0.1,
-                                rely = 0.2)
+                               text="username: ",
+                               font="Helvetica 14")
+        self.labelName.place(relheight=0.2,
+                             relx=0.1,
+                             rely=0.2)
 
         # type box
         self.username = Entry(self.login,
-                               font = "Helvetica 14")
-        self.username.place(relwidth = 0.4,
-                             relheight = 0.12,
-                             relx = 0.35,
-                             rely = 0.2)
+                              font="Helvetica 14")
+        self.username.place(relwidth=0.4,
+                            relheight=0.12,
+                            relx=0.35,
+                            rely=0.2)
 
         # focus
         self.username.focus()
 
         # button to continue
         self.go = Button(self.login,
-                         text = "continue",
-                         font = "Helvetica 14 bold",
-                         command = lambda: self.continuing(self.username.get()))
-        self.go.place(relx = 0.4,
-                      rely = 0.55)
+                         text="continue",
+                         font="Helvetica 14 bold",
+                         command=lambda: self.continuing(self.username.get()))
+        self.go.place(relx=0.4,
+                      rely=0.55)
         self.Window.mainloop()
 
     def continuing(self, name):
@@ -87,14 +85,14 @@ class Client:
         self.Window.configure(width=470,
                               height=550,
                               bg="#2B2A38")
-        self.labelHead = Label(self.Window,
+        self.label_head = Label(self.Window,
                                bg="#2B2A38",
                                fg="#D4D3E3",
                                text=self.name,
                                font="Helvetica 14 bold",
                                pady=5)
 
-        self.labelHead.place(relwidth=1)
+        self.label_head.place(relwidth=1)
         self.line = Label(self.Window,
                           width=450,
                           bg="#A1A5B5")
@@ -104,47 +102,47 @@ class Client:
                         relheight=0.012)
 
         self.text_cons = Text(self.Window,
-                             width=20,
-                             height=2,
-                             bg="#2B2A38",
-                             fg="#D4D3E3",
-                             font="Helvetica 14",
-                             padx=5,
-                             pady=5)
+                              width=20,
+                              height=2,
+                              bg="#2B2A38",
+                              fg="#D4D3E3",
+                              font="Helvetica 14",
+                              padx=5,
+                              pady=5)
 
         self.text_cons.place(relheight=0.745,
-                            relwidth=1,
-                            rely=0.08)
+                             relwidth=1,
+                             rely=0.08)
 
         self.label_bottom = Label(self.Window,
-                                 bg="#A1A5B5",
-                                 height=80)
+                                  bg="#A1A5B5",
+                                  height=80)
 
         self.label_bottom.place(relwidth=1,
-                               rely=0.825)
+                                rely=0.825)
 
         self.new_message = Entry(self.label_bottom,
-                              bg="#2C3E50",
-                              fg="#D4D3E3",
-                              font="Helvetica 14")
+                                 bg="#2C3E50",
+                                 fg="#D4D3E3",
+                                 font="Helvetica 14")
         self.new_message.place(relwidth=0.74,
-                            relheight=0.06,
-                            rely=0.008,
-                            relx=0.011)
+                               relheight=0.06,
+                               rely=0.008,
+                               relx=0.011)
 
         self.new_message.focus()
 
         # send button
         self.button_send = Button(self.label_bottom,
-                                text="Send",
-                                font="Helvetica 14 bold",
-                                width=20,
-                                bg="#A1A5B5",
-                                command=lambda: self.send_button(self.new_message.get()))
+                                  text="Send",
+                                  font="Helvetica 14 bold",
+                                  width=20,
+                                  bg="#A1A5B5",
+                                  command=lambda: self.send_button(self.new_message.get()))
         self.button_send.place(relx=0.77,
-                             rely=0.008,
-                             relheight=0.06,
-                             relwidth=0.22)
+                               rely=0.008,
+                               relheight=0.06,
+                               relwidth=0.22)
 
         self.text_cons.config(cursor="arrow")
 
@@ -163,13 +161,14 @@ class Client:
         while True:
             try:
                 message = self.s.recv(1204).decode("utf-8")
+                if message == 'NAME':
+                   self.s.send(self.name.encode("utf-8"))
+                else:
+                    self.text_cons.config(state=NORMAL)
+                    self.text_cons.insert(END, message + "\n\n")
 
-
-                self.text_cons.config(state=NORMAL)
-                self.text_cons.insert(END, message + "\n\n")
-
-                self.text_cons.config(state=DISABLED)
-                self.text_cons.see(END)
+                    self.text_cons.config(state=DISABLED)
+                    self.text_cons.see(END)
             except:
                 print("error")
                 self.s.close()
