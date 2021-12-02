@@ -1,6 +1,9 @@
 import socket
 import threading
 
+HOST = "10.0.0.168"
+PORT = 3825
+FORMAT = "utf-8"
 
 class Server:
     def __init__(self):
@@ -8,33 +11,28 @@ class Server:
 
     def start_server(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        host = "10.0.0.168"
-        port = 3825
-
         self.usernames = []
         self.clients = []
-        self.s.bind((host, port))
+        self.s.bind((HOST, PORT))
         self.s.listen()
         print('listening at...')
-        print('IP: ' + str(host))
-        print('Port: ' + str(port))
+        print('IP: ' + str(HOST))
+        print('PORT: ' + str(PORT))
 
         while True:
             c, addr = self.s.accept()
-            c.send("NAME".encode("utf-8"))
-            username = (str(c.recv(1024).decode("utf-8")) + " at " + str(addr[1]))
-            # uses port number as unique identification number to distinguish between users
+            c.send("NAME".encode(FORMAT))
+            username = (str(c.recv(1024).decode(FORMAT)))
 
             # new connection notice to all
             print('New connection. Username: ' + username)
             self.usernames.append(username)
             self.clients.append(c)
-            self.message_all(f"{username} has joined, welcome!".encode("utf-8"))
+            self.message_all(f"{username} has joined, welcome!".encode(FORMAT))
 
             threading.Thread(target=self.handle_client, args=(c, addr)).start()
 
-            self.message_all(f"Currently {threading.activeCount()-1} active users:\n".encode("utf-8"))
+            self.message_all(f"Currently {threading.activeCount()-1} active users:\n".encode(FORMAT))
             self.display_open_connections()
 
             for client in self.clients:
@@ -44,7 +42,6 @@ class Server:
         while True:
             try:
                 message = c.recv(1024)
-
             except:
                 # connection closed, remove from lists and provide updated list
                 c.close()
@@ -55,13 +52,11 @@ class Server:
                         self.clients.pop(i)
                         self.usernames.pop(i)
 
-                self.message_all("Someone left, here are the remaining users:".encode("utf-8"))
+                self.message_all("Someone left, here are the remaining users:".encode(FORMAT))
                 self.display_open_connections()
                 break
-            # if message.decode("utf-8").startswith("@"):
-
-            if message.decode("utf-8") != '':
-                print(str(message.decode("utf-8")))
+            if message.decode(FORMAT) != '':
+                print(str(message.decode(FORMAT)))
                 self.message_all(message)
 
     def message_all(self, message):
@@ -71,7 +66,7 @@ class Server:
     def display_open_connections(self):
         # send current active user list to all users
         for user in self.usernames:
-            self.message_all(f"{user} \n".encode("utf-8"))
+            self.message_all(f"{user} \n".encode(FORMAT))
             print(user)
 
 
